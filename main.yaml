@@ -1,0 +1,9 @@
+---
+# Main playbook for BIOS and Firmware updates on HP BL460c Gen9 servers
+- name: Update BIOS and Firmware on HP BL460c Servers
+  hosts: bl460c_gen9  # Targets the group 'bl460c_gen9' in the inventory
+  become: yes         # Use elevated privileges for all tasks
+
+  roles:
+    - firmware_upgrade  # Applies the 'bios_firmware_upgrade' role to targeted hosts
+

@@ -1,0 +1,37 @@
+---
+# Task list for the bios_firmware_upgrade role
+
+- name: Gather facts
+  setup:  # Gathers facts about the servers, useful for conditionals and info retrieval
+
+- name: Define model-specific variables based on ansible facts
+  set_fact:  # Sets variables for the paths to BIOS and firmware binaries
+    bios_update_binary: "BL460cGen9/bios_update_gen9.bin"
+    firmware_update_binary: "BL460cGen9/firmware_update_gen9.bin"
+
+- name: Copy the BIOS update binary to the server
+  copy:  # Copies the BIOS update binary to the target server
+    src: "{{ bios_update_binary }}"
+    dest: "/tmp/{{ bios_update_binary | basename }}"
+  notify: reboot_server  # Triggers a reboot after the update (handled by a handler)
+
+- name: Copy the Firmware update binary to the server
+  copy:  # Copies the firmware update binary to the target server
+    src: "{{ firmware_update_binary }}"
+    dest: "/tmp/{{ firmware_update_binary | basename }}"
+  notify: reboot_server  # Triggers a reboot after the update
+
+- name: Execute BIOS update command
+  command:  # Executes the BIOS update binary with necessary flags
+    "/tmp/{{ bios_update_binary | basename }} --silent --reboot"
+  async: 1200
+  poll: 0
+  ignore_errors: yes  # Continues playbook execution even if this task fails
+
+- name: Execute Firmware update command
+  command:  # Executes the firmware update binary with necessary flags
+    "/tmp/{{ firmware_update_binary | basename }} --silent --reboot"
+  async: 1200
+  poll: 0
+  ignore_errors: yes
+

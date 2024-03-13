@@ -1,0 +1,11 @@
+# Handler definitions for the bios_firmware_upgrade role
+
+- name: reboot_server
+  reboot:  # Reboots the server after BIOS/firmware updates
+    msg: "Rebooting for BIOS/Firmware update"
+    connect_timeout: 5
+    reboot_timeout: 600
+    pre_reboot_delay: 0
+    post_reboot_delay: 30
+    test_command: uptime  # Verifies server is back up by checking uptime
+

@@ -1,0 +1,5 @@
+---
+# vars file for bios-firmware-upgrade
+bios_update_files:
+  BL460cGen9: "bios_update_gen9.bin"  # Adjust per your file names and paths
+
