@@ -1,13 +1,12 @@
----
-# Task list for the bios_firmware_upgrade role
+# tasks/main.yml for the bios_firmware_upgrade role
 
 - name: Gather facts
   setup:  # Gathers facts about the servers, useful for conditionals and info retrieval
 
 - name: Define model-specific variables based on ansible facts
   set_fact:  # Sets variables for the paths to BIOS and firmware binaries
-    bios_update_binary: "BL460cGen9/bios_update_gen9.bin"
-    firmware_update_binary: "BL460cGen9/firmware_update_gen9.bin"
+    bios_update_binary: "binaries/BL460cGen9/bios_update_gen9.bin"
+    firmware_update_binary: "binaries/BL460cGen9/firmware_update_gen9.bin"
 
 - name: Copy the BIOS update binary to the server
   copy:  # Copies the BIOS update binary to the target server
