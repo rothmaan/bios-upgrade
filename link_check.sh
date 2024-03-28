@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 # Define the output file
@@ -9,27 +8,23 @@ for team in team0 team1 team2; do
     echo "Checking status for $team:" >> $output_file
     # Get current date and time
     current_date=$(date "+%Y-%m-%d %H:%M:%S")
-
-    # Initially assume all interfaces are up
+    
+    # Use teamdctl to list interfaces part of the team
+    interfaces=$(teamdctl $team state dump | grep -oP '"ifname": "\K[^"]+')
+    
+    # Flag to track if all interfaces are up
     all_up=true
 
-    # Check each interface in the team
-    for intf in $(teamdctl $team state view | jq -r '.ports | keys[]'); do
-        # Check the operational state of the interface
-        op_state=$(cat /sys/class/net/$intf/operstate)
-        if [[ "$op_state" == "down" ]]; then
-            all_up=false
+    # Loop through each interface found
+    for intf in $interfaces; do
+        # Use ip link to check the operational state of the interface
+        op_state=$(ip link show $intf | awk '/state/ {print $9}')
+        if [[ "$op_state" != "UP" ]]; then
             echo "$current_date: $intf in $team is down" >> $output_file
-            # When the interface is down, skip uptime calculation
+            all_up=false
+            # If an interface is down, no need to check uptime
             continue
         fi
-
-        # Calculate the interface's uptime
-        last_changed=$(cat /sys/class/net/$intf/statistics/rx_bytes)
-        intf_uptime_seconds=$(echo "$last_changed / 100" | bc)
-        intf_uptime=$(date -ud "@$intf_uptime_seconds" +'%H hours, %M minutes, %S seconds')
-
-        echo "$current_date: $intf in $team is up. Uptime: $intf_uptime" >> $output_file
     done
 
     if $all_up; then
@@ -38,4 +33,3 @@ for team in team0 team1 team2; do
 
     echo "--------------------------------" >> $output_file
 done
-
